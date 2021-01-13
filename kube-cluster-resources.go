@@ -54,16 +54,33 @@ func main() {
 func getAllClusterOperators(client *kubernetes.Clientset) []string {
 
 	var clusterOperatorNameList []string
+	/*
+		rawResponse, _ := client.RESTClient().
+			Get().
+			AbsPath("/apis/config.openshift.io/v1").
+			Resource("clusteroperators").
+			DoRaw(context.Background())
+	*/
+
+	/*
+		rawResponse, _ := client.RESTClient().
+			Get().
+			AbsPath("/apis/metrics.k8s.io/v1beta1").
+			Resource("pods").Namespace("observatorium").
+			DoRaw(context.Background())
+	*/
 
 	rawResponse, _ := client.RESTClient().
 		Get().
-		AbsPath("/apis/config.openshift.io/v1").
-		Resource("clusteroperators").
+		AbsPath("/apis/monitoring.coreos.com/v1/").
+		Resource("prometheuses").Namespace("openshift-monitoring").
 		DoRaw(context.Background())
-
-	jsonparser.ArrayEach(rawResponse, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		clusterOperatorName, _, _, _ := jsonparser.Get(value, "metadata", "name")
-		clusterOperatorNameList = append(clusterOperatorNameList, string(clusterOperatorName))
-	}, "items")
+	fmt.Println(jsonparser.GetUnsafeString(rawResponse))
+	/*
+		jsonparser.ArrayEach(rawResponse, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+			clusterOperatorName, _, _, _ := jsonparser.Get(value, "metadata", "name")
+			clusterOperatorNameList = append(clusterOperatorNameList, string(clusterOperatorName))
+		}, "items")
+	*/
 	return clusterOperatorNameList
 }
